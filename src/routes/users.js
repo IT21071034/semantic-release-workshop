@@ -68,8 +68,20 @@ router.put('/:id', (req, res) => {
   if (index === -1) {
     return res.status(404).json({ error: `User with id ${id} not found` });
   }
-
+// Check for duplicate email (if updating email)
   const { name, email, role } = req.body;
+
+    if (email) {
+    const emailExists = users.find(
+      (u) => u.email === email && u.id !== id
+    );
+
+    if (emailExists) {
+      return res.status(409).json({
+        error: 'Another user with this email already exists',
+      });
+    }
+  }
   users[index] = { ...users[index], ...(name && { name }), ...(email && { email }), ...(role && { role }) };
 
   res.json(users[index]);
